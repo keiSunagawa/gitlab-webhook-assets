@@ -16,24 +16,7 @@ defmodule Stalker.Main do
   end
 
   def mr_exists?(project, source, target) do
-    q = """
-    query {
-      project(fullPath:"#{project}") {
-        mergeRequests(
-          targetBranches:["#{target}"],
-          state: opened
-        ) {
-          nodes {
-            iid,
-            title,
-            sourceBranch
-          }
-        }
-      }
-    }
-    """
-    res = External.GraphqlClient.query(q)
-    IO.inspect res
+    res = External.GraphqlClient.query("find_mr_by_target", %{"project" => project, "target" => target})
     res["data"]["project"]["mergeRequests"]["nodes"] |> Enum.any?(fn n ->
       n["sourceBranch"] == source
     end)

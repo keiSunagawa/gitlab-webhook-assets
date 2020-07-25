@@ -1,0 +1,14 @@
+query FindMRByTerget($project: ID!, $target: String!) {
+  project(fullPath: $project) {
+    mergeRequests(
+      targetBranches:[$target],
+      state: opened
+    ) {
+      nodes {
+        iid,
+        title,
+        sourceBranch
+      }
+    }
+  }
+}
