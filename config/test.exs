@@ -8,3 +8,12 @@ config :gitlab_webhook, GitlabWebhookWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :gitlab_webhook, :stalker,
+  [[]]
+
+config :gitlab_webhook, :external,
+  graphql_api_endpoint: "",
+  rest_api_endpoint: "",
+  access_token: "",
+  slack_notice_endpoint: ""

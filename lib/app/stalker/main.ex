@@ -1,25 +1,83 @@
 defmodule Stalker.Main do
-  @project_path Application.fetch_env!(:gitlab_webhook, :stalker)[:project_path]
-  @stalker_branch Application.fetch_env!(:gitlab_webhook, :stalker)[:stalker_branch]
-  @victim_branch Application.fetch_env!(:gitlab_webhook, :stalker)[:victim_branch]
+  require Logger
 
   def run(ev) do
-    if (
-      ev.project_path == @project_path and
-      ev.target_branch == @victim_branch and
-      !mr_exists?(ev.project_path, @victim_branch, @stalker_branch)
-    ) do
-      # create mr
-      External.RestAPIClient.create_mr(ev.project_path, @victim_branch, @stalker_branch)
-      # send notice
-    end
+    # TODO gen server
+    settings = Application.fetch_env!(:gitlab_webhook, :stalker)
+    Enum.each(settings, fn s ->
+      IO.inspect s
+      if (
+        ev.project_path == s[:project_path] and
+        ev.target_branch == s[:victim_branch] and
+        !mr_exists?(s[:project_path], s[:victim_branch], s[:stalker_branch])
+      ) do
+        # create mr
+        mr = External.RestAPIClient.create_mr(s[:project_path], s[:victim_branch], s[:stalker_branch])
+        # send notice
+        created = mr_info(s[:project_path], mr["iid"])
+        trigger = mr_info(s[:project_path], ev.mr_iid)
+        text = mr_message(s[:slack_notice][:mention], created, trigger)
+        External.SlackClient.notice(s[:slack_notice][:icon], s[:slack_notice][:channel], text)
+      end
+    end)
   end
 
   def mr_exists?(project, source, target) do
     res = External.GraphqlClient.query("find_mr_by_target", %{"project" => project, "target" => target})
+    Logger.debug inspect(res)
     res["data"]["project"]["mergeRequests"]["nodes"] |> Enum.any?(fn n ->
       n["sourceBranch"] == source
     end)
+  end
+
+  def mr_info(project, iid) do
+    res = External.GraphqlClient.query("find_mr_by_iid", %{"project" => project, "iid" => to_string(iid)})
+    Logger.debug inspect(res)
+    res["data"]["project"]["mergeRequest"]
+  end
+
+  defp mr_message(mention, mr_info, trigger_mr_info) do
+    trigger_mr_msg = trigger_mr_info_message(trigger_mr_info["title"], trigger_mr_info["author"]["name"], trigger_mr_info["webUrl"])
+
+    if mr_info["mergeStatus"] == "cannot_be_merged" do
+      """
+      #{conflict_message(mention, mr_info["title"], mr_info["webUrl"])}
+      #{trigger_mr_msg}
+      """
+    else
+      """
+      #{create_mr_message(mention, mr_info["title"], mr_info["webUrl"])}
+      #{trigger_mr_msg}
+      """
+    end
+  end
+
+  defp create_mr_message(mention, title, url) do
+    """
+    #{mention}
+    `#{title}` を作成しました, approve & mergeをお願いします
+    #{url}
+    """
+  end
+
+  defp conflict_message(mention, title, url) do
+    """
+    #{mention}
+    `#{title}` を作成しました, *conflictが発生しています*
+    confict 解消をお願いします :cry:
+    #{url}
+    """
+  end
+
+  defp trigger_mr_info_message(trigger_mr_title, author, url) do
+    """
+    ```
+    trigger MR:
+      title: #{trigger_mr_title}
+      author: #{author}
+      link: #{url}
+    ```
+    """
   end
 end
 
@@ -27,7 +85,7 @@ defmodule Stalker.MainTest do
   def f() do
     ev = %Stalker.MREvent {
       project_path: "root/foo",
-      mr_iid: "1",
+      mr_iid: "12",
       target_branch: "staging",
       source_branch: "hoge",
       state: "merged"

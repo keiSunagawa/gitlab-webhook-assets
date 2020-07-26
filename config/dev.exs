@@ -59,9 +59,18 @@ config :phoenix, :stacktrace_depth, 20
 config :phoenix, :plug_init_mode, :runtime
 
 config :gitlab_webhook, :stalker,
-  project_path: "root/foo",
-  stalker_branch: "master",
-  victim_branch: "staging"
+  [
+    [
+      project_path: "root/foo",
+      stalker_branch: "master",
+      victim_branch: "staging",
+      slack_notice: [
+        icon: ":unicorn_face:",
+        mention: "<!channel>",
+        channel: "#times"
+      ]
+    ]
+  ]
 
 config :gitlab_webhook, :external,
   graphql_api_endpoint: "http://localhost:31102/api/graphql",

@@ -1,0 +1,12 @@
+query FindMRByIID($project: ID!, $iid: String!) {
+  project(fullPath: $project) {
+    mergeRequest(iid: $iid) {
+      title,
+      webUrl,
+      author {
+        name
+      },
+      mergeStatus
+    }
+  }
+}

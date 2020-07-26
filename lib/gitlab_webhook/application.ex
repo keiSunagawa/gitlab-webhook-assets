@@ -16,7 +16,8 @@ defmodule GitlabWebhook.Application do
       # Start a worker by calling: GitlabWebhook.Worker.start_link(arg)
       # {GitlabWebhook.Worker, arg}
       External.GraphqlClient,
-      External.RestAPIClient
+      External.RestAPIClient,
+      External.SlackClient
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

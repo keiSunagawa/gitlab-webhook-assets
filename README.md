@@ -16,3 +16,8 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
   * Docs: https://hexdocs.pm/phoenix
   * Forum: https://elixirforum.com/c/phoenix-forum
   * Source: https://github.com/phoenixframework/phoenix
+
+## TODO
+- [x] stalker traverse list config
+- [ ] slack notice with mention and select channel, mr information
+- [ ] conflict check
