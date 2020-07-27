@@ -55,15 +55,5 @@ config :logger, :console, format: "[$level] $message\n"
 # Finally import the config/prod.secret.exs which loads secrets
 # and configuration from environment variables.
 
-config :gitlab_webhook, :stalker,
-  project_path: System.get_env("STALKER_PROJECT_PATH"),
-  stalker_branch: System.get_env("STALKER_STALKER_BRANCH"),
-  victim_branch: System.get_env("STALKER_VICTIM_BRANCH")
-
-config :gitlab_webhook, :external,
-  graphql_api_endpoint: System.get_env("EXTERNAL_GRAPHQL_API_ENDPOINT"),
-  rest_api_endpoint: System.get_env("EXTERNAL_REST_API_ENDPOINT"),
-  access_token: System.get_env("EXTERNAL_ACCESS_TOKEN"),
-  slack_notice_endpoint: System.get_env("EXTERNAL_SLACK_NOTICE_ENDPOINT")
-
+import_config "prod.env.exs"
 import_config "prod.secret.exs"
