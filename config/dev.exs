@@ -75,5 +75,5 @@ config :gitlab_webhook, :stalker,
 config :gitlab_webhook, :external,
   graphql_api_endpoint: "http://localhost:31102/api/graphql",
   rest_api_endpoint: "http://localhost:31102/api/v4/projects",
-  access_token: "hM79LVge7BDx8xfyzNWb",
+  access_token: "yW3UstEpfjtrjzjA8NyX",
   slack_notice_endpoint: ""

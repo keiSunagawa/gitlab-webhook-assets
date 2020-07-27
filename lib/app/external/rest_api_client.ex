@@ -34,6 +34,19 @@ defmodule External.RestAPIClient do
     {:reply, Jason.decode!(body), state}
   end
 
+  def handle_call({:find_mr_by, project, source}, _from, state) do
+    repo_id = URI.encode_www_form(project)
+    source_encoded = URI.encode_www_form(source)
+    %HTTPoison.Response{status_code: 200, body: body}  = HTTPoison.get!(
+      "#{state.endpoint}/#{repo_id}/merge_requests?state=opened&source_branch=#{source_encoded}",
+      [
+        {"Private-Token", state.token}
+      ]
+    )
+    {:reply, Jason.decode!(body), state}
+  end
+
   def create_mr(project, source, target), do: GenServer.call(__MODULE__, {:create_mr, project, source, target})
+  def find_mr_by(project, source), do: GenServer.call(__MODULE__, {:find_mr_by, project, source})
 end
 

@@ -22,11 +22,21 @@ defmodule Stalker.Main do
     end)
   end
 
+  # for gitlab 13
+  # def mr_exists?(project, source, target) do
+  #   res = External.GraphqlClient.query("find_mr_by_target", %{"project" => project, "target" => target})
+  #   Logger.debug inspect(res)
+  #   res["data"]["project"]["mergeRequests"]["nodes"] |> Enum.any?(fn n ->
+  #     n["sourceBranch"] == source
+  #   end)
+  # end
+
+  # for gitlab 12
   def mr_exists?(project, source, target) do
-    res = External.GraphqlClient.query("find_mr_by_target", %{"project" => project, "target" => target})
+    res = External.RestAPIClient.find_mr_by(project, source)
     Logger.debug inspect(res)
-    res["data"]["project"]["mergeRequests"]["nodes"] |> Enum.any?(fn n ->
-      n["sourceBranch"] == source
+    res |> Enum.any?(fn n ->
+      n["target_branch"] == target
     end)
   end
 
@@ -37,7 +47,7 @@ defmodule Stalker.Main do
   end
 
   defp mr_message(mention, mr_info, trigger_mr_info) do
-    trigger_mr_msg = trigger_mr_info_message(trigger_mr_info["title"], trigger_mr_info["author"]["name"], trigger_mr_info["webUrl"])
+    trigger_mr_msg = trigger_mr_info_message(trigger_mr_info["title"], trigger_mr_info["webUrl"])
 
     if mr_info["mergeStatus"] == "cannot_be_merged" do
       """
@@ -69,12 +79,11 @@ defmodule Stalker.Main do
     """
   end
 
-  defp trigger_mr_info_message(trigger_mr_title, author, url) do
+  defp trigger_mr_info_message(trigger_mr_title, url) do
     """
     ```
     trigger MR:
       title: #{trigger_mr_title}
-      author: #{author}
       link: #{url}
     ```
     """
@@ -85,7 +94,7 @@ defmodule Stalker.MainTest do
   def f() do
     ev = %Stalker.MREvent {
       project_path: "root/foo",
-      mr_iid: "12",
+      mr_iid: "2",
       target_branch: "staging",
       source_branch: "hoge",
       state: "merged"

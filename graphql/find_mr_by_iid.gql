@@ -3,9 +3,9 @@ query FindMRByIID($project: ID!, $iid: String!) {
     mergeRequest(iid: $iid) {
       title,
       webUrl,
-      author {
-        name
-      },
+      # author {
+      #   name
+      # },
       mergeStatus
     }
   }

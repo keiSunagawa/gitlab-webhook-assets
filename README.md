@@ -19,5 +19,7 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 ## TODO
 - [x] stalker traverse list config
-- [ ] slack notice with mention and select channel, mr information
-- [ ] conflict check
+- [x] slack notice with mention and select channel, mr information
+- [x] conflict check
+- [x] source branch search by rest api
+- [x] trigger auther use origin hook
