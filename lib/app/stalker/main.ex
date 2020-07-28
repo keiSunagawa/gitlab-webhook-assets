@@ -9,6 +9,7 @@ defmodule Stalker.Main do
       if (
         ev.project_path == s[:project_path] and
         ev.target_branch == s[:victim_branch] and
+        ev.source_branch != s[:stalker_branch] and
         !mr_exists?(s[:project_path], s[:victim_branch], s[:stalker_branch])
       ) do
         # create mr

@@ -23,3 +23,4 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 - [x] conflict check
 - [x] source branch search by rest api
 - [x] trigger auther use origin hook
+- [ ] check, source is not stalker_branch
